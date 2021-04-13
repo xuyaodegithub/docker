@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>闹钟</title>
+    <style>
+        body,html{
+            margin:0;
+            padding:0;
+        }
+        .out{
+            width:600px;
+            height: 600px;
+            border:1px solid #0D0D0D;
+            border-radius: 50%;
+            margin:0 auto;
+            position: relative;
+            box-shadow: 0 0 50px #999999;
+        }
+        .out span{
+            display: inline-block;
+        }
+        .out .one{
+            font-size: 24px;
+            position: absolute;
+            top:0;
+            left:50%;
+            margin: 0 0 0 -24px;
+            padding:0;
+            width:48px;
+            height:100%;
+            text-align: center;
+        }
+        .out .dian{
+            width:20px;
+            height:20px;
+            background-color: #000000;
+            border-radius: 50%;
+            position: absolute;
+            top:50%;
+            left:50%;
+            margin:-10px 0 0 -10px;
+        }
+        .hours,.mint,.sec{
+            position: absolute;
+            top:50%;
+            left:50%;
+            border:none;
+        }
+        .hours{
+            width:8px;
+            height: 40%;
+            /*margin:;*/
+            margin-left: -4px;
+            margin-top: -20%;
+            /*background:black;*/
+        }
+        .mint{
+            width:6px;
+            height: 60%;
+            margin-left: -3px;
+            margin-top: -30%;
+            /*background:red ;*/
+        }
+        .sec{
+            width:4px;
+            height: 80%;
+            margin-left: -2px;
+            margin-top: -40%;
+        }
+        input{
+            height:40px;
+            line-height: 40px;
+            width:200px;
+        }
+        .last{
+            position: absolute;
+            height:60%;
+            top:0;
+            right: 0;
+            width:100%;
+            background-color: rgba(14, 5, 4, 1);
+            border:none;
+            z-index: 111;
+            border-top-left-radius: 50%;
+            border-top-right-radius: 50%;
+        }
+        div:last-child
+    </style>
+</head>
+<body>
+<div class="father">
+    <div class="out">
+        <div class="one"><span>1</span></div>
+        <div class="one"><span>2</span></div>
+        <div class="one"><span>3</span></div>
+        <div class="one"><span>4</span></div>
+        <div class="one"><span>5</span></div>
+        <div class="one"><span>6</span></div>
+        <div class="one"><span>7</span></div>
+        <div class="one"><span>8</span></div>
+        <div class="one"><span>9</span></div>
+        <div class="one"><span>10</span></div>
+        <div class="one"><span>11</span></div>
+        <div class="one"><span>12</span></div>
+        <div class="dian"></div>
+        <div class="hours">
+            <div class="last"></div>
+        </div>
+        <div class="mint">            <div class="last"></div>
+        </div>
+        <div class="sec">            <div class="last"></div>
+        </div>
+    </div>
+</div>
+    <script>
+        /* (function() {
+            var lastTime = 0;
+            var vendors = ['webkit', 'moz', 'ms', 'o'];
+            for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+                window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+                window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] ||    // name has changed in Webkit
+                    window[vendors[x] + 'CancelRequestAnimationFrame'];
+            }
+
+            if (!window.requestAnimationFrame) {
+                window.requestAnimationFrame = function(callback, element) {
+                    var currTime = new Date().getTime();
+                    var timeToCall = Math.max(0, 16.7 - (currTime - lastTime));
+                    var id = window.setTimeout(function() {
+                        callback(currTime + timeToCall);
+                    }, timeToCall);
+                    lastTime = currTime + timeToCall;
+                    return id;
+                };
+            }
+            if (!window.cancelAnimationFrame) {
+                window.cancelAnimationFrame = function(id) {
+                    clearTimeout(id);
+                };
+            }
+        }()); */
+        let oP=document.getElementsByClassName('one');
+        let osec=document.getElementsByClassName('sec');
+        let omint=document.getElementsByClassName('mint');
+        let ohours=document.getElementsByClassName('hours');
+        let oSpan=document.getElementsByTagName('span');
+        for(let i=0;i<oP.length;i++){
+            oP[i].style.transform ='rotate('+(i+1)*30+'deg)';
+            oSpan[i].style.transform ='rotate(-'+(i+1)*30+'deg)';
+        }
+        function changeThis(){
+            let data=new Date();
+            let h=data.getHours();
+            let m=data.getMinutes();
+            let s=data.getSeconds();
+            ohours[0].style.transform='rotateZ('+(30*h+30*m/60)+'deg)';
+            omint[0].style.transform='rotateZ('+360*m/60+'deg)';
+            osec[0].style.transform='rotateZ('+s*6+'deg)';
+            requestAnimationFrame(changeThis)//requestAnimationFrame有兼容性问题，可以使用定时器
+        }
+        changeThis();
+    </script>
+</body>
+</html>

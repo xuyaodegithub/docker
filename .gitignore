@@ -1,0 +1,30 @@
+.DS_Store
+node_modules
+/dist
+.history
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
+
+# 目前禁止添加ts相关声明和配置
+@types/
+tsconfig.json
+.prettierrc.json
+
+# 单测覆盖率不用提交
+test/unit/coverage
