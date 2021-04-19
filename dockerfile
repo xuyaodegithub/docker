@@ -2,9 +2,9 @@ FROM node:14.16.0
 MAINTAINER shisan
 #创建oss-upload-test目录
 RUN mkdir -p /oss-upload-test
-ADD ./oss-upload/*.js /oss-upload-test
-ADD ./oss-upload/package.json /oss-upload-test
-ADD ./oss-upload/dist /oss-upload-test
+ADD ./*.js /oss-upload-test
+ADD ./package.json /oss-upload-test
+ADD ./dist /oss-upload-test
 #RUN npm tarZip test
 #RUN mkdir -p /oss-upload-test/dist
 #ADD ./oss-upload/dist /oss-upload-test/dist
