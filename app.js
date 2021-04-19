@@ -12,16 +12,16 @@ let client = new OSS({
     // timeout:true,//指定访问OSS的API的超时时间，默认值为60000，单位为毫秒。
 });
 
-async function listBuckets () {//查看Bucket列表
+async function listBuckets (agrv) {//查看Bucket列表
     try {
-        let result = await client.listBuckets();
-        console.log(result.buckets,__dirname)
-        const firstBucket=result.buckets[1].name
+        // let result = await client.listBuckets();
+        // console.log(result.buckets,__dirname)
+        // const firstBucket=result.buckets[1].name
         // await fileList(firstBucket)
-        // await putFile(firstBucket,'../../clock.html')
+        await putFile(agrv)
         // await getFile(firstBucket,'index.html')
         // await deleteFile(firstBucket,'fs/index.js')
-        await putAllFiles(firstBucket,'../fs/')
+        // await putAllFiles(firstBucket,'../fs/')
     } catch(err) {
         console.log(err)
     }
@@ -37,12 +37,14 @@ async  function fileList (bucket) {//查看文件列表
         console.log (err)
     }
 }
-async function putFile(bucket,localFilePath){//上传文件
-    client.useBucket(bucket);
-    const paths=path.resolve(__dirname,localFilePath)
-    console.log(paths)
+async function putFile(agrv){//上传文件.bucketName,completePath
+    client.useBucket(agrv.bucketName);
+    const completePath=path.resolve(agrv.absoultPath,agrv.relativePath)
+    const idx=completePath.lastIndexOf('/') > -1 ? completePath.lastIndexOf('/') :completePath.lastIndexOf('\\')
+    const fileName=completePath.slice(idx+1)
+    console.log(completePath)
     try {
-        let result = await client.put('index.html', paths);
+        let result = await client.put(fileName, completePath);
         console.log(result);
     } catch (err) {
         console.log (err);
@@ -88,5 +90,24 @@ async function isFiles(files){
         return stats.isFile()
     })
 }
+// console.log(process.env.MODE,process.argv)
+function argvsList(){
+    const processArgsArr = process.argv.filter(item => {
+        return item.includes('=')
+    })
 
-listBuckets()
+    const tempObj = {}
+    processArgsArr.forEach(item => {
+        const itemArray = item.split('=')
+        tempObj[itemArray[0]] = itemArray[1] || ''
+    })
+    console.log(tempObj)
+    return tempObj
+}
+const agements=argvsList()
+// {
+//     bucketName:'',
+//     absoultPath:'',
+//     relativePath:'',
+// }
+listBuckets(agements)
