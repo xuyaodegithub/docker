@@ -1,9 +1,9 @@
-let OSS = require('ali-oss'),path=require('path'),fs=require('fs');
+let OSS = require('ali-oss'), path = require('path'), fs = require('fs'), abs = '';
 
 let client = new OSS({
     region: 'oss-cn-hangzhou',
-    accessKeyId: 'LTAI5tMVidqb9KC6beoj5GCo',
-    accessKeySecret: 'CRQ9Th7262DCULdD0ir222MHuYA0tc',
+    accessKeyId: '',
+    accessKeySecret: '',
     // internal:true,//配合region使用。如果指定internal为true，则访问内网节点。
     // secure:true,//配合region使用。如果指定secure为true，则使用HTTPS访问。
     // endpoint:'www.xuyaohtml.top',//如果指定了endpoint，如http://oss-cn-hangzhou.aliyuncs.com，则region会被忽略，endpoint可以指定为HTTPS，也可以是IP的形式。
@@ -12,7 +12,7 @@ let client = new OSS({
     // timeout:true,//指定访问OSS的API的超时时间，默认值为60000，单位为毫秒。
 });
 
-async function listBuckets (agrv) {//查看Bucket列表
+async function listBuckets(agrv) {//查看Bucket列表
     try {
         // let result = await client.listBuckets();
         // console.log(result.buckets,__dirname)
@@ -22,11 +22,12 @@ async function listBuckets (agrv) {//查看Bucket列表
         // await getFile(firstBucket,'index.html')
         // await deleteFile(firstBucket,'fs/index.js')
         // await putAllFiles(firstBucket,'../fs/')
-    } catch(err) {
+    } catch (err) {
         console.log(err)
     }
 }
-async  function fileList (bucket) {//查看文件列表
+
+async function fileList(bucket) {//查看文件列表
     client.useBucket(bucket);
     try {
         let result = await client.list({
@@ -34,64 +35,75 @@ async  function fileList (bucket) {//查看文件列表
         })
         console.log(result.objects)
     } catch (err) {
-        console.log (err)
+        console.log(err)
     }
 }
-async function putFile(agrv){//上传文件.bucketName,completePath
+
+async function putFile(agrv) {//上传文件.bucketName,completePath
     client.useBucket(agrv.bucketName);
-    const completePath=path.resolve(agrv.absoultPath,agrv.relativePath)
-    const idx=completePath.lastIndexOf('/') > -1 ? completePath.lastIndexOf('/') :completePath.lastIndexOf('\\')
-    const fileName=completePath.slice(idx+1)
-    console.log(completePath)
+    const completePath = path.resolve(agrv.absoultPath,agrv.relativePath)
+    const idx = agrv.relativePath.lastIndexOf('/') > -1 ? completePath.lastIndexOf('/') : completePath.lastIndexOf('\\')
+    const fileName = completePath.substring(idx + 1)
+    console.log(completePath, agrv.absoultPath, agrv.relativePath,fileName, agrv.absoultPath.split('./')[1]+agrv.relativePath.split('.')[1],111)
     try {
-        let result = await client.put(fileName, completePath);
+        let result = await client.put(agrv.absoultPath.split('./')[1]+agrv.relativePath.split('.')[1], completePath);
         console.log(result);
     } catch (err) {
-        console.log (err);
+        console.log(err);
     }
 }
-async function getFile(bucket,fileName){//下载文件
+
+async function getFile(bucket, fileName) {//下载文件
     client.useBucket(bucket);
-    const localPath=path.resolve(__dirname,'./test.txt')
+    const localPath = path.resolve(__dirname, './test.txt')
     try {
-        let result = await client.get(fileName,localPath);
+        let result = await client.get(fileName, localPath);
         console.log(result);
     } catch (err) {
-        console.log (err);
+        console.log(err);
     }
 }
-async function deleteFile(bucket,fileName){//删除文件
+
+async function deleteFile(bucket, fileName) {//删除文件
     client.useBucket(bucket);
     try {
         let result = await client.delete(fileName);
         console.log(result);
     } catch (err) {
-        console.log (err);
+        console.log(err);
     }
 }
 
 
-async function putAllFiles(bucket,dirname){
-    const paths=path.resolve(__dirname,dirname)
-    client.useBucket(bucket);
-    fs.readdir(paths, (err,files)=>{
-        if(err)return console.error(err)
-        files.forEach(async (file,idx)=>{
-            const filePath=path.resolve(paths,`./${file}`)
-            const isFile=await isFiles(filePath)
-            if(isFile)await putFile(bucket,)
+async function putAllFiles(arg) {
+    const paths = path.resolve(__dirname, arg.absoultPath)
+    client.useBucket(arg.bucketName);
+    fs.readdir(paths, (err, files) => {
+        if (err) return console.error(err + '`````')
+        files.forEach(async (file, idx) => {
+            const filePath = path.resolve(paths, `./${file}`)
+            const isFile = await isFiles(filePath)
+            if (isFile) await putFile({...arg, relativePath: '.' + filePath.split(abs)[1].replace(/\\/g, '/')})
+            else putAllFiles({...arg, absoultPath: filePath})
         })
     })
 }
 
-async function isFiles(files){
-    fs.stat(files,(err,stats)=>{
-        if(err)return console.error(err)
-        return stats.isFile()
-    })
+async function isFiles(files) {
+    try {
+        const s = fs.statSync(files)
+        return s.isFile()
+    } catch (err) {
+        return true
+    }
 }
+
+function urlConfig(fullpath) {
+    return fullpath.split(abs)[1].replace(/\\/g, '/')
+}
+
 // console.log(process.env.MODE,process.argv)
-function argvsList(){
+function argvsList() {
     const processArgsArr = process.argv.filter(item => {
         return item.includes('=')
     })
@@ -102,12 +114,15 @@ function argvsList(){
         tempObj[itemArray[0]] = itemArray[1] || ''
     })
     console.log(tempObj)
+    if (tempObj.absoultPath) abs = path.resolve(__dirname, tempObj.absoultPath)
     return tempObj
 }
-const agements=argvsList()
+
+const agements = argvsList()
 // {
 //     bucketName:'',
 //     absoultPath:'',
 //     relativePath:'',
 // }
-listBuckets(agements)
+// listBuckets(agements)
+putAllFiles(agements)

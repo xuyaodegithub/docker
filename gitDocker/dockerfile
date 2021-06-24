@@ -1,0 +1,15 @@
+#FROM node:14.16.0
+FROM  ubuntu
+#FROM centos:7
+EXPOSE 8081
+USER root
+RUN apt-get update
+RUN mkdir /root/.ssh/
+ADD . /root/.ssh/
+RUN chmod -R 600 /root/.ssh/
+RUN apt-get install -y git \
+    && git config --global user.name "vthra_front" \
+    && git config --global user.email "vthra_front@tsign.cn"
+RUN touch /root/.ssh/known_hosts
+RUN ssh-keyscan -t rsa git.timevale.cn >> /root/.ssh/known_hosts
+#RUN git clone git@git.timevale.cn:saas-micro-frontend/enterprise-front.git
